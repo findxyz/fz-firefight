@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import xyz.fz.fire.fight.model.Task;
 import xyz.fz.fire.fight.model.TaskHelper;
 import xyz.fz.fire.fight.util.SSHUtil;
 
@@ -18,9 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static xyz.fz.fire.fight.util.SSHUtil.CONSOLE;
-import static xyz.fz.fire.fight.util.SSHUtil.RUNNING;
-import static xyz.fz.fire.fight.util.SSHUtil.cache;
+import static xyz.fz.fire.fight.util.SSHUtil.*;
 
 @Controller
 public class TaskController implements InitializingBean {
@@ -34,6 +33,10 @@ public class TaskController implements InitializingBean {
     private static final String SUCCESS = "success";
 
     private static final String BLANK_COUNT = "blankCount";
+
+    public static final String MISSION_COMPLETE = "任务执行完成";
+
+    private static final String CONSOLE_OVER = "CONSOLE_OVER";
 
     @Value("${task.passCode}")
     private String taskPassCode;
@@ -64,14 +67,20 @@ public class TaskController implements InitializingBean {
             if (cache.getIfPresent(RUNNING) == null) {
                 cache.put(RUNNING, true);
                 String finalCmd = cmd.replace(todayPassCode, "");
-                executorService.execute(() -> {
-                    try {
-                        SSHUtil.execute(TaskHelper.shellTask(finalCmd));
-                    } catch (Exception e) {
-                        cache.invalidate(RUNNING);
-                    }
-                });
-                result.put(SUCCESS, true);
+                Task.ShellTask shellTask = TaskHelper.shellTask(finalCmd);
+                if (shellTask != null) {
+                    executorService.execute(() -> {
+                        try {
+                            SSHUtil.execute(shellTask);
+                        } finally {
+                            cache.invalidate(RUNNING);
+                        }
+                    });
+                    result.put(SUCCESS, true);
+                } else {
+                    cache.invalidate(RUNNING);
+                    result.put(SUCCESS, false);
+                }
             } else {
                 result.put(SUCCESS, false);
             }
@@ -85,7 +94,7 @@ public class TaskController implements InitializingBean {
     @ResponseBody
     public String console(@RequestParam(required = false, defaultValue = "") String passCode) {
 
-        if (!StringUtils.equals(passCode(), passCode)) {
+        if (!StringUtils.startsWith(passCode, passCode())) {
             return "";
         }
 
@@ -107,7 +116,7 @@ public class TaskController implements InitializingBean {
                 cache.put(BLANK_COUNT, blankCount);
             }
             if (blankCount > 5) {
-                return "CONSOLE_OVER";
+                return CONSOLE_OVER;
             } else {
                 return "";
             }

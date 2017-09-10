@@ -19,6 +19,8 @@ import java.io.StreamTokenizer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
+import static xyz.fz.fire.fight.controller.TaskController.MISSION_COMPLETE;
+
 public class SSHUtil {
 
     private static Logger logger = LoggerFactory.getLogger(SSHUtil.class);
@@ -27,24 +29,18 @@ public class SSHUtil {
 
     public static final String CONSOLE = "console";
 
-    public static Cache<Object, Object> cache = CacheBuilder.newBuilder().expireAfterWrite(120, TimeUnit.SECONDS).initialCapacity(2).build();
+    public static Cache<Object, Object> cache = CacheBuilder.newBuilder().expireAfterWrite(120, TimeUnit.SECONDS).initialCapacity(5).build();
 
     public static void execute(Task.ShellTask shellTask) {
 
-        if (shellTask == null) {
-            cache.invalidate(RUNNING);
-            return;
-        }
-
-        cacheConsoleContent("任务标题：" + shellTask.getTitle() + "\n");
-        cacheConsoleContent("任务描述：" + shellTask.getDesc() + "\n");
+        cacheConsoleContent("任务标题：" + shellTask.getTitle() + "<br/>");
+        cacheConsoleContent("任务描述：" + shellTask.getDesc() + "<br/>");
 
         for (Task.Step step : shellTask.getSteps()) {
             execute(TaskHelper.host(), step.getUserName(), TaskHelper.password(step.getUserName()), step);
         }
 
-        cache.invalidate(RUNNING);
-        cacheConsoleContent("任务执行完成");
+        cacheConsoleContent(MISSION_COMPLETE);
     }
 
     private static void execute(String host, String username, String password, Task.Step step) {
@@ -57,7 +53,7 @@ public class SSHUtil {
         Integer autoClosedAfterSeconds = step.getAutoClosedAfterSeconds();
 
         logger.warn("任务阶段：{}", introduction);
-        cacheConsoleContent("任务阶段：" + introduction + "\n");
+        cacheConsoleContent("任务阶段：" + introduction + "<br/>");
         execute(host, username, password, runCommand, autoClosedAfterSeconds);
 
         if (StringUtils.isNotBlank(monitorCommand)) {
@@ -75,12 +71,12 @@ public class SSHUtil {
                     DateTime now = new DateTime();
                     if (maxTime.isBefore(now)) {
                         logger.error("想要结果获取超时，本次任务执行终止");
-                        cacheConsoleContent("想要结果获取超时，本次任务执行终止\n");
+                        cacheConsoleContent("想要结果获取超时，本次任务执行终止<br/>");
                         throw new RuntimeException("获取想要结果超时");
                     }
                     String monitorResult = execute(host, username, password, monitorCommand, autoClosedAfterSeconds);
                     logger.warn("Monitor result: {}", monitorResult);
-                    cacheConsoleContent("检测返回结果：" + monitorResult + "\n");
+                    cacheConsoleContent("检测返回结果：" + monitorResult + "<br/>");
                     if (StringUtils.contains(monitorResult, monitorWanted)) {
                         break;
                     }
@@ -125,7 +121,7 @@ public class SSHUtil {
                     DateTime now = new DateTime();
                     if (maxTime.isBefore(now)) {
                         logger.warn("执行程序长时间阻塞，超时自动退出");
-                        cacheConsoleContent("执行程序长时间阻塞，超时自动退出（一般为正常情况）\n");
+                        cacheConsoleContent("执行程序长时间阻塞，超时自动退出（一般为正常情况）<br/>");
                         break;
                     }
                 }
@@ -137,7 +133,7 @@ public class SSHUtil {
                     String bufferStr = new String(buffer, 0, i);
                     result.append(bufferStr);
                     logger.info("服务器输出：\n{}", bufferStr);
-                    cacheConsoleContent("服务器输出：\n");
+                    cacheConsoleContent("服务器输出：<br/>");
                     cacheConsoleContent(bufferStr);
                 }
                 if (channel.isClosed()) {
@@ -145,14 +141,14 @@ public class SSHUtil {
                     String message = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
                     if (StringUtils.isNotBlank(message)) {
                         logger.error("Message: {}", message);
-                        cacheConsoleContent("服务器结果：" + message + "\n");
+                        cacheConsoleContent("服务器结果：" + message + "<br/>");
                     }
                     break;
                 }
             }
         } catch (Exception e) {
             logger.error(BaseUtil.getExceptionStackTrace(e));
-            cacheConsoleContent("发生异常：" + e.getMessage() + "\n");
+            cacheConsoleContent("发生异常：" + e.getMessage() + "<br/>");
         } finally {
             // close connect
             if (channel != null) {

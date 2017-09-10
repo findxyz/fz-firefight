@@ -1,0 +1,85 @@
+{
+  "host": "127.0.0.1",
+  "users": [
+    {
+      "userName": "runner",
+      "passWord": "runner"
+    },
+    {
+      "userName": "root",
+      "passWord": "root"
+    }
+  ],
+  "tasks": [
+    {
+      "key": "程序更新",
+      "title": "程序更新",
+      "desc": "更新补丁，并无缝重启服务",
+      "steps": [
+        {
+          "userName": "runner",
+          "introduction": "当前程序备份",
+          "runCommand": "sh /home/runner/cmd/backup.sh",
+          "monitorCommand": "",
+          "monitorWanted": "",
+          "monitorMaxSeconds": 0,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "root",
+          "introduction": "nginx切换为仅8088提供服务",
+          "runCommand": "sh /home/runner/cmd/nginx8088.sh",
+          "monitorCommand": "",
+          "monitorWanted": "",
+          "monitorMaxSeconds": 0,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "runner",
+          "introduction": "开始重启tomcat8089",
+          "runCommand": "sh /home/runner/cmd/serverStart8089.sh",
+          "monitorCommand": "sh /home/runner/cmd/serverStartupCheck8089.sh",
+          "monitorWanted": "Server startup",
+          "monitorMaxSeconds": 120,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "root",
+          "introduction": "nginx切换为仅8089提供服务",
+          "runCommand": "sh /home/runner/cmd/nginx8089.sh",
+          "monitorCommand": "",
+          "monitorWanted": "",
+          "monitorMaxSeconds": 0,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "runner",
+          "introduction": "开始重启tomcat8088",
+          "runCommand": "sh /home/runner/cmd/serverStart8088.sh",
+          "monitorCommand": "sh /home/runner/cmd/serverStartupCheck8088.sh",
+          "monitorWanted": "Server startup",
+          "monitorMaxSeconds": 120,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "root",
+          "introduction": "nginx切换为全部提供服务",
+          "runCommand": "sh /home/runner/cmd/nginxAll.sh",
+          "monitorCommand": "",
+          "monitorWanted": "",
+          "monitorMaxSeconds": 0,
+          "autoClosedAfterSeconds": 0
+        },
+        {
+          "userName": "runner",
+          "introduction": "定时任务重启",
+          "runCommand": "sh /home/runner/cmd/task.sh",
+          "monitorCommand": "",
+          "monitorWanted": "",
+          "monitorMaxSeconds": 0,
+          "autoClosedAfterSeconds": 10
+        }
+      ]
+    }
+  ]
+}

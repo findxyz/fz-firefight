@@ -2,6 +2,8 @@ package xyz.fz.fire.fight.controller;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import xyz.fz.fire.fight.model.Task;
 import xyz.fz.fire.fight.model.TaskHelper;
+import xyz.fz.fire.fight.util.BaseUtil;
 import xyz.fz.fire.fight.util.SSHUtil;
 
 import java.text.SimpleDateFormat;
@@ -46,6 +49,8 @@ public class TaskController implements InitializingBean {
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    private static Logger logger = LoggerFactory.getLogger(TaskController.class);
+
     @RequestMapping("/list")
     @ResponseBody
     public List<String> list(@RequestParam(required = false, defaultValue = "") String passCode) {
@@ -72,6 +77,9 @@ public class TaskController implements InitializingBean {
                     executorService.execute(() -> {
                         try {
                             SSHUtil.execute(shellTask);
+                        } catch (Exception e) {
+                            logger.error(BaseUtil.getExceptionStackTrace(e));
+                            e.printStackTrace();
                         } finally {
                             cache.invalidate(RUNNING);
                         }

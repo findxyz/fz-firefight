@@ -78,6 +78,7 @@ public class SSHUtil {
                     logger.warn("Monitor result: {}", monitorResult);
                     cacheConsoleContent("检测返回结果：" + monitorResult + "<br/>");
                     if (StringUtils.contains(monitorResult, monitorWanted)) {
+                        cacheConsoleContent("预期结果匹配成功" + "<br/>");
                         break;
                     }
                 }

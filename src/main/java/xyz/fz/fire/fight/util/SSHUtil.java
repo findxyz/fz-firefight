@@ -135,7 +135,7 @@ public class SSHUtil {
                     result.append(bufferStr);
                     logger.info("服务器输出：\n{}", bufferStr);
                     cacheConsoleContent("服务器输出：<br/>");
-                    cacheConsoleContent(bufferStr);
+                    cacheConsoleContent(bufferStr + "<br/>");
                 }
                 if (channel.isClosed()) {
                     printStream.flush();

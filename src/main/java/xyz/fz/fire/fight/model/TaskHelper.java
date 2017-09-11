@@ -23,7 +23,7 @@ public class TaskHelper {
         }
         for (Task.ShellTask shellTask : task.getTasks()) {
             taskMap.put(shellTask.getKey(), shellTask);
-            taskList.add(shellTask.getTitle() + "【" + shellTask.getKey() + "】");
+            taskList.add(shellTask.getTitle() + "(" + shellTask.getDesc() + ")" + "【" + shellTask.getKey() + "】");
         }
     }
 

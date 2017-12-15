@@ -1,7 +1,5 @@
 package xyz.fz.fire.fight.configuration;
 
-import org.apache.shiro.cache.CacheManager;
-import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.realm.text.PropertiesRealm;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -36,10 +34,4 @@ public class ShiroConfiguration {
         return chainDefinition;
     }
 
-    @Bean
-    public CacheManager cacheManager() {
-        // todo 需要升级为redisCacheManager，使用redisTemplate自己实现一个CacheManager实现
-        // Caching isn't needed in this example, but we will use the MemoryConstrainedCacheManager for this example.
-        return new MemoryConstrainedCacheManager();
-    }
 }

@@ -31,9 +31,12 @@ public class SpringCacheManagerWrapper implements CacheManager {
      * 缺点：相对来说实现较为麻烦，并且如果功能实现上有遗漏清除缓存的地方将有可能发生变更了却不生效的情况
      */
 
+    private final org.springframework.cache.CacheManager cacheManager;
+
     @Autowired
-    @Qualifier("shiroRedisCacheManager")
-    private org.springframework.cache.CacheManager cacheManager;
+    public SpringCacheManagerWrapper(@Qualifier("shiroRedisCacheManager") org.springframework.cache.CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     @Override
     @SuppressWarnings("unchecked")

@@ -38,7 +38,7 @@ public class BaseUtil {
         return DigestUtils.sha256Hex(random + str);
     }
 
-    public static String JAXBMarshal(Object obj) throws IOException, JAXBException {
+    public static String jaxbMarshal(Object obj) throws IOException, JAXBException {
         String xml = "";
         try (StringWriter sw = new StringWriter()) {
             JAXBContext context = JAXBContext.newInstance(obj.getClass());
@@ -59,7 +59,7 @@ public class BaseUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T JAXBUnMarshal(String xml, Class<T> cls) throws JAXBException {
+    public static <T> T jaxbUnmarshal(String xml, Class<T> cls) throws JAXBException {
         try (StringReader sr = new StringReader(xml)) {
             JAXBContext context = JAXBContext.newInstance(cls);
             Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -81,21 +81,21 @@ public class BaseUtil {
         return new Color(r, g, b);
     }
 
-    private static final ThreadLocal<DateFormat> shortDf = new ThreadLocal<DateFormat>() {
+    private static final ThreadLocal<DateFormat> SHORT_DF = new ThreadLocal<DateFormat>() {
         @Override
         protected DateFormat initialValue() {
             return new SimpleDateFormat("yyyy-MM-dd");
         }
     };
 
-    private static final ThreadLocal<DateFormat> longDf = new ThreadLocal<DateFormat>() {
+    private static final ThreadLocal<DateFormat> LONG_DF = new ThreadLocal<DateFormat>() {
         @Override
         protected DateFormat initialValue() {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         }
     };
 
-    private static final ThreadLocal<DateFormat> numberGeneratorDf = new ThreadLocal<DateFormat>() {
+    private static final ThreadLocal<DateFormat> NUMBER_GENERATOR_DF = new ThreadLocal<DateFormat>() {
         @Override
         protected DateFormat initialValue() {
             return new SimpleDateFormat("yyyyMMddHHmmssSSS");
@@ -103,16 +103,16 @@ public class BaseUtil {
     };
 
     public static String toShortDate(Date date) {
-        return shortDf.get().format(date);
+        return SHORT_DF.get().format(date);
     }
 
     public static String toLongDate(Date date) {
-        return longDf.get().format(date);
+        return LONG_DF.get().format(date);
     }
 
     public static String numberGenerate(String prefix) {
         Assert.notNull(prefix, "编号前缀不可为空");
-        return prefix + numberGeneratorDf.get().format(new Date()) + RandomStringUtils.random(4, "0123456789");
+        return prefix + NUMBER_GENERATOR_DF.get().format(new Date()) + RandomStringUtils.random(4, "0123456789");
     }
 
     public static String getExceptionStackTrace(Exception e) {

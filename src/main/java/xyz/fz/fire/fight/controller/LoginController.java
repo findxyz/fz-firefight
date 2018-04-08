@@ -24,7 +24,7 @@ public class LoginController {
 
     @RequestMapping("/doLogout")
     @ResponseBody
-    public String login() {
+    public String logout() {
         try {
             SecurityUtils.getSubject().logout();
             return "{\"success\": true}";

@@ -12,12 +12,7 @@ public class ShiroConfiguration {
 
     @Bean
     public Realm realm() {
-        // todo 需要升级为jdbcRealm
-        // uses 'classpath:shiro-users.properties' by default
-        PropertiesRealm realm = new PropertiesRealm();
-        // Caching isn't needed in this example, but we can still turn it on
-        realm.setCachingEnabled(true);
-        return realm;
+        return new PropertiesRealm();
     }
 
     @Bean
